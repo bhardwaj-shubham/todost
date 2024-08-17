@@ -1,4 +1,4 @@
-import { signInAction } from "@/actions/auth-action";
+import UserProfile from "@/components/convex/user-profile";
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
@@ -8,9 +8,9 @@ export default function Home() {
         <h1>Todost</h1>
         <p>This is AI Based Task Management App</p>
 
-        <form action={signInAction}>
-          <Button>Login</Button>
-        </form>
+        <UserProfile />
+
+        <Button>Hey</Button>
       </div>
     </main>
   );

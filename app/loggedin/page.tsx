@@ -1,17 +1,18 @@
-import UserProfile from "@/components/convex/user-profile";
-import { Button } from "@/components/ui/button";
+import UserProfile from "@/components/nav-bar/user-profile";
+import MobileNav from "@/components/nav-bar/mobile-nav";
+import SideBar from "@/components/nav-bar/side-bar";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div>
-        <h1>Todost</h1>
-        <p>This is AI Based Task Management App</p>
+    <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
+      <SideBar />
 
-        <UserProfile />
-
-        <Button>Hey</Button>
+      <div className="flex flex-col">
+        <MobileNav />
+        <main className="flex flex-1 flex-col gap-4 p-4 lg:px-8">
+          <h1>ToDost</h1>
+        </main>
       </div>
-    </main>
+    </div>
   );
 }

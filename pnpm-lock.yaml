@@ -20,6 +20,12 @@ importers:
       convex:
         specifier: ^1.14.1
         version: 1.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      convex-helpers:
+        specifier: ^0.1.50
+        version: 0.1.50(convex@1.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
+      jose:
+        specifier: ^5.6.3
+        version: 5.6.3
       lucide-react:
         specifier: ^0.428.0
         version: 0.428.0(react@18.3.1)
@@ -596,6 +602,21 @@ packages:
 
   concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
+
+  convex-helpers@0.1.50:
+    resolution: {integrity: sha512-Fr5AExZwBEIlMmSa/fiJjxrGP6TwjnEvU+uGUo7ZLRLrWmvs0fjFAUoOxEO9shKDf1Wwl2hMl7M06Bqcb90+1w==}
+    peerDependencies:
+      convex: ^1.13.0
+      hono: ^4.0.5
+      react: ^17.0.2 || ^18.0.0
+      zod: ^3.22.4
+    peerDependenciesMeta:
+      hono:
+        optional: true
+      react:
+        optional: true
+      zod:
+        optional: true
 
   convex@1.14.1:
     resolution: {integrity: sha512-Yx1eKIUFUnNBSU1rRXE+AfBeA+Av5GQ7CYGXzbAcTtTYLJVLbA3A2W7EObJIIyRiu5hc4JlW41rYx59o2Q3RFg==}
@@ -2264,6 +2285,12 @@ snapshots:
   commander@4.1.1: {}
 
   concat-map@0.0.1: {}
+
+  convex-helpers@0.1.50(convex@1.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1):
+    dependencies:
+      convex: 1.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+    optionalDependencies:
+      react: 18.3.1
 
   convex@1.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:

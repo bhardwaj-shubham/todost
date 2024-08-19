@@ -1,6 +1,6 @@
-import UserProfile from "@/components/nav-bar/user-profile";
 import MobileNav from "@/components/nav-bar/mobile-nav";
 import SideBar from "@/components/nav-bar/side-bar";
+import TodoList from "@/components/todos/todo_list";
 
 export default function Home() {
   return (
@@ -10,7 +10,7 @@ export default function Home() {
       <div className="flex flex-col">
         <MobileNav />
         <main className="flex flex-1 flex-col gap-4 p-4 lg:px-8">
-          <h1>ToDost</h1>
+          <TodoList />
         </main>
       </div>
     </div>

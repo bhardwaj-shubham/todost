@@ -1,0 +1,63 @@
+import { mutation, query } from "@/convex/_generated/server";
+import { v } from "convex/values";
+
+export const get = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db.query("todos").collect();
+  },
+});
+
+export const completedTodos = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db
+      .query("todos")
+      .filter((q) => q.eq(q.field("isCompleted"), true))
+      .collect();
+  },
+});
+
+export const inCompleteTodos = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db
+      .query("todos")
+      .filter((q) => q.eq(q.field("isCompleted"), false))
+      .collect();
+  },
+});
+
+export const totalTodos = query({
+  args: {},
+  handler: async (ctx) => {
+    const completedTodos = await ctx.db
+      .query("todos")
+      .filter((q) => q.eq(q.field("isCompleted"), true))
+      .collect();
+
+    return completedTodos.length || 0;
+  },
+});
+
+export const checkATodo = mutation({
+  args: { todoId: v.id("todos") },
+  handler: async (ctx, { todoId }) => {
+    const newTodoId = await ctx.db.patch(todoId, {
+      isCompleted: true,
+    });
+
+    return newTodoId;
+  },
+});
+
+export const unCheckATodo = mutation({
+  args: { todoId: v.id("todos") },
+  handler: async (ctx, { todoId }) => {
+    const newTodoId = await ctx.db.patch(todoId, {
+      isCompleted: false,
+    });
+
+    return newTodoId;
+  },
+});

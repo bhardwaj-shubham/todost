@@ -5,6 +5,7 @@ import { api } from "@/convex/_generated/api";
 
 import Todos from "./todos";
 import CompletedTodos from "./completed-todos";
+import { AddTaskWrapper } from "@/components/add-tasks/add-task-button";
 
 export default function TodoList() {
   const completedTodos = useQuery(api.todos.completedTodos) ?? [];
@@ -28,6 +29,8 @@ export default function TodoList() {
       <div className="flex flex-col gap-1 py-4">
         <Todos items={inCompleteTodos} />
       </div>
+
+      <AddTaskWrapper />
 
       <div className="flex flex-col gap-1 py-4">
         <Todos items={completedTodos} />

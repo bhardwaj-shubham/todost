@@ -1,25 +1,51 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { format } from "date-fns";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { cn } from "@/lib/utils";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 
-import { Text } from "lucide-react";
-import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
+import { CalendarIcon, Text } from "lucide-react";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { CardFooter } from "@/components/ui/card";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import moment from "moment";
+import { useToast } from "../ui/use-toast";
 
 const FormSchema = z.object({
   taskName: z.string().min(2, {
-    message: "Taskname must be at least 2 characters.",
+    message: "Task name must be at least 2 characters.",
   }),
   description: z.string().optional(),
-  priority: z.string(),
-  dueDate: z.date(),
-  projectId: z.string(),
-  labelId: z.string(),
+  priority: z.string().min(1, { message: "Please select a prority" }),
+  dueDate: z.date({ required_error: "A due date is required" }),
+  projectId: z.string().min(1, { message: "Please select a project" }),
+  labelId: z.string().min(1, { message: "Please select a project" }),
 });
 
 export default function AddTaskInline({
@@ -27,19 +53,50 @@ export default function AddTaskInline({
 }: {
   setShowAddTask: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
+  const projects = useQuery(api.projects.getProjects) ?? [];
+  const labels = useQuery(api.labels.getLabels) ?? [];
+
+  const createATodoMutation = useMutation(api.todos.createATodo);
+
+  const { toast } = useToast();
+
+  const defaultValues = {
+    taskName: "",
+    description: "",
+    priority: "1",
+    dueDate: new Date(),
+    projectId: "k97ehx0j897sskm7y684f5zakd6z4yvh" as Id<"projects">,
+    labelId: "k57fqf7wh29xrn2dnqrvh1h70s6z4ypg" as Id<"labels">,
+  };
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
-    defaultValues: {
-      taskName: "",
-      description: "",
-      priority: "1",
-      dueDate: new Date(),
-      projectId: "k97ehx0j897sskm7y684f5zakd6z4yvh",
-      labelId: "k57fqf7wh29xrn2dnqrvh1h70s6z4ypg",
-    },
+    defaultValues,
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {}
+  function onSubmit(data: z.infer<typeof FormSchema>) {
+    const { taskName, description, priority, dueDate, projectId, labelId } =
+      data;
+
+    if (projectId) {
+      const mutationId = createATodoMutation({
+        taskName,
+        description,
+        priority: parseInt(priority),
+        dueDate: moment(dueDate).valueOf(),
+        projectId: projectId as Id<"projects">,
+        labelId: labelId as Id<"labels">,
+      });
+
+      if (mutationId !== undefined) {
+        toast({ title: "Successfully created a todo.", duration: 3000 });
+
+        form.reset({ ...defaultValues });
+      }
+
+      setShowAddTask(false);
+    }
+  }
 
   return (
     <div>
@@ -84,6 +141,129 @@ export default function AddTaskInline({
                     />
                   </div>
                 </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <div className="flex gap-2">
+            <FormField
+              control={form.control}
+              name="dueDate"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "flex gap-2 w-[240px] pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="priority"
+              render={({ field }) => (
+                <FormItem>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue
+                          defaultValue={"1"}
+                          placeholder="Select a priority"
+                        />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="1">Priority 1</SelectItem>
+                      <SelectItem value="2">Priority 2</SelectItem>
+                      <SelectItem value="3">Priority 3</SelectItem>
+                      <SelectItem value="4">Priority 4</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="labelId"
+              render={({ field }) => (
+                <FormItem>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a label" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {labels.map((label: Doc<"labels">, index: number) => (
+                        <SelectItem key={index} value={label._id}>
+                          {label?.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <FormField
+            control={form.control}
+            name="projectId"
+            render={({ field }) => (
+              <FormItem>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a project" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {projects.map((project: Doc<"projects">, index: number) => (
+                      <SelectItem key={index} value={project?._id}>
+                        {project?.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
               </FormItem>
             )}
           />

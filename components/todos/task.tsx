@@ -2,7 +2,7 @@ import moment from "moment";
 import clsx from "clsx";
 
 import { Doc } from "@/convex/_generated/dataModel";
-// import AddTaskDialog from "../add-tasks/add-task-dialog";
+import AddTaskDialog from "../add-tasks/add-task-dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Calendar, GitBranch } from "lucide-react";
@@ -19,7 +19,7 @@ export default function Task({
   handleOnChange,
   showDetails = false,
 }: {
-  data: Doc<"todos"> | Doc<"subTodos">;
+  data: Doc<"todos">;
   isCompleted: boolean;
   handleOnChange: any;
   showDetails?: boolean;
@@ -71,7 +71,7 @@ export default function Task({
               </div>
             </DialogTrigger>
           </div>
-          {/* {!isSubTodo(data) && <AddTaskDialog data={data} />} */}
+          <AddTaskDialog data={data} />
         </div>
       </Dialog>
     </div>

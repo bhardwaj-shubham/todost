@@ -1,6 +1,7 @@
 import { mutation, query } from "@/convex/_generated/server";
 import { v } from "convex/values";
 import { handleUserId } from "./auth";
+import moment from "moment";
 
 export const get = query({
   args: {},
@@ -8,7 +9,54 @@ export const get = query({
     const userId = await handleUserId(ctx);
 
     if (userId) {
-      return await ctx.db.query("todos").collect();
+      return await ctx.db
+        .query("todos")
+        .filter((q) => q.eq(q.field("userId"), userId))
+        .collect();
+    }
+
+    return [];
+  },
+});
+
+export const getTodayTodos = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await handleUserId(ctx);
+
+    if (userId) {
+      const todayStart = moment().startOf("day");
+      const todayEnd = moment().endOf("day");
+
+      return await ctx.db
+        .query("todos")
+        .filter((q) => q.eq(q.field("userId"), userId))
+        .filter(
+          (q) =>
+            q.gte(q.field("dueDate"), todayStart.valueOf()) &&
+            q.lte(q.field("dueDate"), todayEnd.valueOf())
+        )
+        .collect();
+    }
+
+    return [];
+  },
+});
+
+export const overDueTodos = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await handleUserId(ctx);
+
+    if (userId) {
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+
+      return await ctx.db
+        .query("todos")
+        .filter((q) => q.eq(q.field("userId"), userId))
+        .filter((q) => q.lt(q.field("dueDate"), todayStart.getTime()))
+        .collect();
     }
 
     return [];

@@ -19,7 +19,7 @@ export default function Task({
   handleOnChange,
   showDetails = false,
 }: {
-  data: Doc<"todos">;
+  data: Doc<"todos"> | Doc<"subTodos">;
   isCompleted: boolean;
   handleOnChange: any;
   showDetails?: boolean;
@@ -71,7 +71,7 @@ export default function Task({
               </div>
             </DialogTrigger>
           </div>
-          <AddTaskDialog data={data} />
+          {!data?.parentId && <AddTaskDialog data={data} />}
         </div>
       </Dialog>
     </div>

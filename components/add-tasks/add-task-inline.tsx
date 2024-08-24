@@ -50,23 +50,36 @@ const FormSchema = z.object({
 
 export default function AddTaskInline({
   setShowAddTask,
+  parentTask,
 }: {
   setShowAddTask: React.Dispatch<React.SetStateAction<boolean>>;
+  parentTask: Doc<"todos">;
 }) {
+  const projectId =
+    parentTask?.projectId ||
+    ("k97ehx0j897sskm7y684f5zakd6z4yvh" as Id<"projects">);
+
+  const labelId =
+    parentTask?.labelId || ("k57fqf7wh29xrn2dnqrvh1h70s6z4ypg" as Id<"labels">);
+
+  const priority = parentTask?.priority?.toString() || "1";
+  const parentId = parentTask?._id;
+
   const projects = useQuery(api.projects.getProjects) ?? [];
   const labels = useQuery(api.labels.getLabels) ?? [];
 
   const createATodoMutation = useMutation(api.todos.createATodo);
+  const createASubTodoMutation = useMutation(api.subTodos.createASubTodo);
 
   const { toast } = useToast();
 
   const defaultValues = {
     taskName: "",
     description: "",
-    priority: "1",
+    priority,
     dueDate: new Date(),
-    projectId: "k97ehx0j897sskm7y684f5zakd6z4yvh" as Id<"projects">,
-    labelId: "k57fqf7wh29xrn2dnqrvh1h70s6z4ypg" as Id<"labels">,
+    projectId,
+    labelId,
   };
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -78,7 +91,25 @@ export default function AddTaskInline({
     const { taskName, description, priority, dueDate, projectId, labelId } =
       data;
 
-    if (projectId) {
+    if (parentId) {
+      const mutationId = createASubTodoMutation({
+        taskName,
+        description,
+        priority: parseInt(priority),
+        dueDate: moment(dueDate).valueOf(),
+        projectId: projectId as Id<"projects">,
+        labelId: labelId as Id<"labels">,
+        parentId,
+      });
+
+      if (mutationId !== undefined) {
+        toast({ title: "Successfully created a sub-todo.", duration: 3000 });
+
+        form.reset({ ...defaultValues });
+      }
+
+      setShowAddTask(false);
+    } else {
       const mutationId = createATodoMutation({
         taskName,
         description,
@@ -191,14 +222,11 @@ export default function AddTaskInline({
                 <FormItem>
                   <Select
                     onValueChange={field.onChange}
-                    defaultValue={field.value}
+                    defaultValue={priority}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue
-                          defaultValue={"1"}
-                          placeholder="Select a priority"
-                        />
+                        <SelectValue placeholder="Select a priority" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -220,7 +248,7 @@ export default function AddTaskInline({
                 <FormItem>
                   <Select
                     onValueChange={field.onChange}
-                    defaultValue={field.value}
+                    defaultValue={labelId || field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -248,7 +276,7 @@ export default function AddTaskInline({
               <FormItem>
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  defaultValue={projectId || field.value}
                 >
                   <FormControl>
                     <SelectTrigger>

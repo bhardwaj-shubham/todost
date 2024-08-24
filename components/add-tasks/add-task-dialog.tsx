@@ -1,7 +1,14 @@
+import { useEffect, useState } from "react";
 import { format } from "date-fns";
-import { Doc } from "@/convex/_generated/dataModel";
 
-import { Calendar, Flag, Hash, Tag } from "lucide-react";
+import { useMutation, useQuery } from "convex/react";
+import { Doc } from "@/convex/_generated/dataModel";
+import { api } from "@/convex/_generated/api";
+
+import Task from "../todos/task";
+import { AddTaskWrapper } from "./add-task-button";
+
+import { Calendar, ChevronDown, Flag, Hash, Tag } from "lucide-react";
 import {
   DialogContent,
   DialogDescription,
@@ -9,15 +16,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 
-export default function AddTaskDialog({
-  data: { taskName, description, projectId, labelId, priority, dueDate },
-}: {
-  data: Doc<"todos">;
-}) {
+export default function AddTaskDialog({ data }: { data: Doc<"todos"> }) {
+  const { taskName, description, projectId, labelId, priority, dueDate, _id } =
+    data;
+
   const project = useQuery(api.projects.getProjectById, {
     projectId,
   });
@@ -25,6 +29,19 @@ export default function AddTaskDialog({
   const label = useQuery(api.labels.getLabelById, {
     labelId,
   });
+
+  const inCompleteSubTodosByProject =
+    useQuery(api.subTodos.inCompleteSubTodos, {
+      parentId: _id,
+    }) ?? [];
+
+  const completedSubTodosByProject =
+    useQuery(api.subTodos.completedSubTodos, {
+      parentId: _id,
+    }) ?? [];
+
+  const checkASubTodoMutation = useMutation(api.subTodos.checkASubTodo);
+  const unCheckASubTodoMutation = useMutation(api.subTodos.unCheckASubTodo);
 
   const [todoDetails, setTodoDetails] = useState<
     { labelName: string; value: string | undefined; icon: JSX.Element }[]
@@ -34,34 +51,74 @@ export default function AddTaskDialog({
     const todoData = [
       {
         labelName: "Project",
-        value: String(project?.name),
+        value: project?.name,
         icon: <Hash className="w-4 h-4 text-primary capitalize" />,
       },
       {
         labelName: "Due Date",
-        value: format(dueDate, "MM dd yyyy"),
+        value: format(dueDate || new Date(), "MM dd yyyy"),
         icon: <Calendar className="w-4 h-4 text-primary capitalize" />,
       },
       {
         labelName: "Priority",
-        value: String(priority),
+        value: priority?.toString() || "",
         icon: <Flag className="w-4 h-4 text-primary capitalize" />,
       },
       {
         labelName: "Label",
-        value: String(label?.name),
+        value: label?.name || "",
         icon: <Tag className="w-4 h-4 text-primary capitalize" />,
       },
     ];
 
-    setTodoDetails(todoData);
+    if (todoData) {
+      setTodoDetails(todoData);
+    }
   }, [dueDate, label?.name, priority, project?.name]);
 
   return (
     <DialogContent className="max-w-4xl lg:h-4/6 flex flex-col md:flex-row lg:justify-between text-right">
-      <DialogHeader>
+      <DialogHeader className="w-full">
         <DialogTitle>{taskName}</DialogTitle>
-        <DialogDescription>{description}</DialogDescription>
+        <DialogDescription>
+          <p className="my-2 capitalize">{description}</p>
+          <div className="flex items-center gap-1 mt-12 border-b-2 border-gray-100 pb-2 flex-wrap sm:justify-between lg:gap-0">
+            <div className="flex gap-1">
+              <ChevronDown className="w-5 h-5 text-primary" />
+              <p className="font-bold flex text-sm text-gray-900">Sub-tasks</p>
+            </div>
+            <div>
+              <Button variant={"outline"}>Suggest Missing Task (AI)</Button>
+            </div>
+          </div>
+          <div className="pl-4">
+            {inCompleteSubTodosByProject.map((task) => (
+              <Task
+                key={task._id}
+                data={task}
+                isCompleted={task.isCompleted}
+                handleOnChange={() =>
+                  checkASubTodoMutation({ todoId: task._id })
+                }
+              />
+            ))}
+
+            <div className="pb-4">
+              <AddTaskWrapper parentTask={data} />
+            </div>
+
+            {completedSubTodosByProject.map((task) => (
+              <Task
+                key={task._id}
+                data={task}
+                isCompleted={task.isCompleted}
+                handleOnChange={() =>
+                  unCheckASubTodoMutation({ todoId: task._id })
+                }
+              />
+            ))}
+          </div>
+        </DialogDescription>
       </DialogHeader>
       <div className="flex flex-col gap-2 bg-gray-100 lg:w-1/2">
         {todoDetails.map(({ labelName, value, icon }, index) => (

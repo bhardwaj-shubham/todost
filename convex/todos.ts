@@ -176,3 +176,31 @@ export const createATodo = mutation({
     }
   },
 });
+
+export const groupTodosByDate = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await handleUserId(ctx);
+
+    if (userId) {
+      const upcomingTodos = await ctx.db
+        .query("todos")
+        .filter((q) => q.eq(q.field("userId"), userId))
+        .filter((q) => q.gt(q.field("dueDate"), new Date().getTime()))
+        .filter((q) => q.gt(q.field("isCompleted"), false))
+        .collect();
+
+      const groupedTodos = upcomingTodos.reduce<any>((acc, todo) => {
+        const dueDate = new Date(todo.dueDate).toDateString();
+
+        acc[dueDate] = (acc[dueDate] || []).concat(todo);
+
+        return acc;
+      }, {});
+
+      return groupedTodos;
+    }
+
+    return [];
+  },
+});

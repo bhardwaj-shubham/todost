@@ -12,6 +12,7 @@ import MobileNav from "@/components/nav-bar/mobile-nav";
 import SideBar from "@/components/nav-bar/side-bar";
 import { AddTaskWrapper } from "@/components/add-tasks/add-task-button";
 import CompletedTodos from "@/components/todos/completed-todos";
+import SuggestMissingTasks from "@/components/add-tasks/suggest-task";
 
 export default function ProjectPage() {
   const { projectId } = useParams<{ projectId: Id<"projects"> }>();
@@ -46,8 +47,11 @@ export default function ProjectPage() {
       <div className="flex flex-col">
         <MobileNav />
         <main className="flex flex-1 flex-col gap-4 p-4 lg:px-8">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-2 lg:gap-0">
             <h1 className="text-lg font-semibold md:text-2xl">{projectName}</h1>
+            <div className="flex gap-6 lg:gap-12 items-center">
+              <SuggestMissingTasks projectId={projectId} />
+            </div>
           </div>
 
           <Todos items={inCompletedTodosByProjectId} />

@@ -4,7 +4,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
-import { LoaderCircle } from "lucide-react";
+import { Heart, LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function SuggestMissingTasks({
@@ -42,7 +42,10 @@ export default function SuggestMissingTasks({
             <LoaderCircle className="h-5 w-5 text-primary animate-spin" />
           </div>
         ) : (
-          "Suggest Missing Tasks (AI)"
+          <div className="flex gap-2">
+            Suggest Missing Tasks (AI)
+            <span>💖</span>
+          </div>
         )}
       </Button>
     </>

@@ -4,18 +4,26 @@ import { Id } from "@/convex/_generated/dataModel";
 import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
-import { Heart, LoaderCircle } from "lucide-react";
+import { LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function SuggestMissingTasks({
   projectId,
+  isSubTask = false,
+  taskName = "",
+  description = "",
+  parentId,
 }: {
   projectId: Id<"projects">;
+  isSubTask?: boolean;
+  taskName?: string;
+  description?: string;
+  parentId?: Id<"todos">;
 }) {
   const [isLoadingSuggestMissingTasks, setIsLoadingSuggestMissingTasks] =
     useState(false);
 
-  const suggestMissingTasks = useAction(api.suggestTasks.generateContent) || [];
+  const suggestMissingTasks = useAction(api.suggestTasks.suggestMissingTask);
 
   const handleMissingTasks = async () => {
     setIsLoadingSuggestMissingTasks(true);
@@ -29,12 +37,33 @@ export default function SuggestMissingTasks({
     }
   };
 
+  const suggestMissingSubTasks = useAction(
+    api.suggestTasks.suggestMissingSubTask
+  );
+
+  const handleMissingSubTasks = async () => {
+    setIsLoadingSuggestMissingTasks(true);
+
+    try {
+      await suggestMissingSubTasks({
+        projectId,
+        taskName,
+        description,
+        parentId: parentId!,
+      });
+    } catch (error) {
+      console.log("Error in suggestingMissingTasks", error);
+    } finally {
+      setIsLoadingSuggestMissingTasks(false);
+    }
+  };
+
   return (
     <>
       <Button
         variant={"outline"}
         disabled={isLoadingSuggestMissingTasks}
-        onClick={handleMissingTasks}
+        onClick={isSubTask ? handleMissingSubTasks : handleMissingTasks}
       >
         {isLoadingSuggestMissingTasks ? (
           <div className="flex gap-2">

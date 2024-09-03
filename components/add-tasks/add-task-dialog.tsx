@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { format } from "date-fns";
 
 import { useMutation, useQuery } from "convex/react";
-import { Doc } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import { api } from "@/convex/_generated/api";
 
 import Task from "../todos/task";
@@ -16,7 +16,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+import SuggestMissingTasks from "./suggest-task";
 
 export default function AddTaskDialog({ data }: { data: Doc<"todos"> }) {
   const { taskName, description, projectId, labelId, priority, dueDate, _id } =
@@ -88,7 +88,13 @@ export default function AddTaskDialog({ data }: { data: Doc<"todos"> }) {
               <p className="font-bold flex text-sm text-gray-900">Sub-tasks</p>
             </div>
             <div>
-              <Button variant={"outline"}>Suggest Missing Task (AI)</Button>
+              <SuggestMissingTasks
+                projectId={projectId}
+                taskName={taskName}
+                description={description}
+                isSubTask={true}
+                parentId={_id}
+              />
             </div>
           </div>
           <div className="pl-4">

@@ -21,7 +21,7 @@ type Todo = {
   description: string;
 };
 
-export const generateContent = action({
+export const suggestMissingTask = action({
   args: {
     projectId: v.id("projects"),
   },
@@ -53,10 +53,10 @@ export const generateContent = action({
 
     const response = result.response.text();
     const responseTodos = JSON.parse(
-      response.substring(7, response.length - 6).replaceAll("\n", "")
+      response.split("```")[1].substring(4).replaceAll("\n", "")
     );
 
-    console.log(responseTodos);
+    // console.log(responseTodos);
 
     if (responseTodos) {
       const todoItems = (responseTodos["todos"] as Array<Todo>) ?? [];
@@ -72,6 +72,78 @@ export const generateContent = action({
           priority: 1,
           dueDate: new Date().getTime(),
           projectId,
+          labelId: AI_LABEL_ID,
+        });
+      }
+    }
+  },
+});
+
+export const suggestMissingSubTask = action({
+  args: {
+    projectId: v.id("projects"),
+    parentId: v.id("todos"),
+    taskName: v.string(),
+    description: v.string(),
+  },
+  handler: async (ctx, { projectId, parentId, taskName, description }) => {
+    const subTodos = await ctx.runQuery(api.subTodos.getSubTodosByParentId, {
+      parentId,
+    });
+
+    const project = await ctx.runQuery(api.projects.getProjectById, {
+      projectId,
+    });
+
+    const projectName = project?.name || "";
+
+    const todosInStrings = JSON.stringify({
+      subTodos,
+      projectName,
+      ...{ parentTodo: { taskName, description } },
+    });
+
+    const prompt = `I'm a project manager and I need help identifying missing sub todo items. I have a list of existing tasks in JSON format. Can you help me identify 2 additional sub todo items that are not yet included in this list? Please provide these missing items in a separate JSON array with key as 'subtodos' containing objects with with 'taskName' and 'description' properties. Ensure there are no duplicates between the existing list and the new suggestions. SubTodos: ${todosInStrings}`;
+
+    const result = await model.generateContent({
+      contents: [
+        {
+          role: "user",
+          parts: [
+            {
+              text: prompt,
+            },
+          ],
+        },
+      ],
+      generationConfig: {
+        maxOutputTokens: 1000,
+        temperature: 0.1,
+      },
+    });
+
+    const response = result.response.text();
+    const responseSubTodos = JSON.parse(
+      response.split("```")[1].substring(4).replaceAll("\n", "")
+    );
+
+    // console.log(responseSubTodos);
+
+    if (responseSubTodos) {
+      const todoItems = (responseSubTodos["subTodos"] as Array<Todo>) ?? [];
+
+      const AI_LABEL_ID = process.env.AI_LABEL_ID! as Id<"labels">;
+
+      for (let i = 0; i < todoItems.length; i++) {
+        const { taskName, description } = todoItems[i];
+
+        await ctx.runMutation(api.subTodos.createASubTodo, {
+          taskName,
+          description,
+          priority: 1,
+          dueDate: new Date().getTime(),
+          projectId,
+          parentId,
           labelId: AI_LABEL_ID,
         });
       }

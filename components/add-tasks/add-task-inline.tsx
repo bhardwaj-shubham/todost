@@ -1,13 +1,15 @@
 "use client";
 
+import { Doc, Id } from "@/convex/_generated/dataModel";
+import { cn } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { format } from "date-fns";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { cn } from "@/lib/utils";
-import { Doc, Id } from "@/convex/_generated/dataModel";
 
-import { CalendarIcon, Text } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { CardFooter } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -16,15 +18,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { CardFooter } from "@/components/ui/card";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Select,
   SelectContent,
@@ -32,8 +30,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useMutation, useQuery } from "convex/react";
+import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/convex/_generated/api";
+import { useAction, useQuery } from "convex/react";
+import { CalendarIcon, Text } from "lucide-react";
 import moment from "moment";
 import { useToast } from "../ui/use-toast";
 
@@ -68,8 +68,10 @@ export default function AddTaskInline({
   const projects = useQuery(api.projects.getProjects) ?? [];
   const labels = useQuery(api.labels.getLabels) ?? [];
 
-  const createATodoMutation = useMutation(api.todos.createATodo);
-  const createASubTodoMutation = useMutation(api.subTodos.createASubTodo);
+  const createATodoMutation = useAction(api.todos.createTodoAndEmbeddings);
+  const createASubTodoMutation = useAction(
+    api.subTodos.createTodoAndEmbeddings
+  );
 
   const { toast } = useToast();
 

@@ -23,7 +23,9 @@ export default function SuggestMissingTasks({
   const [isLoadingSuggestMissingTasks, setIsLoadingSuggestMissingTasks] =
     useState(false);
 
-  const suggestMissingTasks = useAction(api.suggestTasks.suggestMissingTask);
+  const suggestMissingTasks = useAction(
+    api.taskSuggestionService.suggestMissingTask
+  );
 
   const handleMissingTasks = async () => {
     setIsLoadingSuggestMissingTasks(true);
@@ -38,7 +40,7 @@ export default function SuggestMissingTasks({
   };
 
   const suggestMissingSubTasks = useAction(
-    api.suggestTasks.suggestMissingSubTask
+    api.taskSuggestionService.suggestMissingSubTask
   );
 
   const handleMissingSubTasks = async () => {

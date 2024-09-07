@@ -67,7 +67,7 @@ export default function SideBar() {
           {navItems.map(({ icon, name, link, id }, index) => (
             <div key={index}>
               {id && (
-                <div className="flex items-center mt-6 mb-2">
+                <div className="flex items-center mt-1 mb-2">
                   <p className="flex flex-1 text-base">
                     {LIST_OF_TITLE_ID[id]}
                   </p>

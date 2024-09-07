@@ -5,7 +5,8 @@ import { action } from "./_generated/server";
 import { api } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API!);
+const apiKey = process.env.GOOGLE_GEMINI_API!;
+const genAI = new GoogleGenerativeAI(apiKey);
 
 // config gemini model
 const model = genAI.getGenerativeModel({
@@ -21,6 +22,7 @@ type Todo = {
   description: string;
 };
 
+// suggest missing task using ai
 export const suggestMissingTask = action({
   args: {
     projectId: v.id("projects"),
@@ -66,6 +68,8 @@ export const suggestMissingTask = action({
       for (let i = 0; i < todoItems.length; i++) {
         const { taskName, description } = todoItems[i];
 
+        const embedding = await createEmbeddingWithAI(taskName);
+
         await ctx.runMutation(api.todos.createATodo, {
           taskName,
           description,
@@ -73,12 +77,14 @@ export const suggestMissingTask = action({
           dueDate: new Date().getTime(),
           projectId,
           labelId: AI_LABEL_ID,
+          embedding,
         });
       }
     }
   },
 });
 
+// suggest missing sub-task using ai
 export const suggestMissingSubTask = action({
   args: {
     projectId: v.id("projects"),
@@ -137,6 +143,8 @@ export const suggestMissingSubTask = action({
       for (let i = 0; i < todoItems.length; i++) {
         const { taskName, description } = todoItems[i];
 
+        const embedding = await createEmbeddingWithAI(taskName);
+
         await ctx.runMutation(api.subTodos.createASubTodo, {
           taskName,
           description,
@@ -145,8 +153,26 @@ export const suggestMissingSubTask = action({
           projectId,
           parentId,
           labelId: AI_LABEL_ID,
+          embedding,
         });
       }
     }
   },
 });
+
+// create a embedding for search text
+export const createEmbeddingWithAI = async (searchText: string) => {
+  // For embeddings, use the Text Embeddings model
+  const model = genAI.getGenerativeModel({ model: "text-embedding-004" });
+
+  const result = await model.embedContent(searchText);
+  const embedding = result.embedding;
+
+  // console.log(embedding);
+
+  const vector = embedding["values"];
+
+  // console.log(`Embedding of ${searchText}: , ${vector.length} dimensions`);
+
+  return vector;
+};

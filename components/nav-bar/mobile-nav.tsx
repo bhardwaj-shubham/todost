@@ -1,17 +1,8 @@
 import Link from "next/link";
-import UserProfile from "./user-profile";
+import Image from "next/image";
 import { primaryNavItems } from "@/utils";
+import UserProfile from "./user-profile";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,8 +11,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { CircleUser, Menu, PlusIcon, Search } from "lucide-react";
-import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Menu } from "lucide-react";
+import SearchForm from "./search-form";
+
+import TodostIcon from "@/public/Todost.png";
 
 export default function MobileNav() {
   return (
@@ -48,15 +42,9 @@ export default function MobileNav() {
               </Link>
             ))}
 
-            <Dialog>
-              <DialogTrigger id="closeDialog">
-                <p className="flex justify-between items-center">
-                  My Projects
-                  <PlusIcon className="h-5 w-5" aria-label={"Add a Project"} />
-                </p>
-              </DialogTrigger>
-              <DialogContent>Hello</DialogContent>
-            </Dialog>
+            <div className="flex items-center mt-6 mb-2">
+              <p className="flex flex-1 text-base">My Projects</p>
+            </div>
           </nav>
           <div className="mt-auto">
             <Card>
@@ -76,34 +64,21 @@ export default function MobileNav() {
           </div>
         </SheetContent>
       </Sheet>
-      <div className="w-full flex-1">
-        <form>
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search products..."
-              className="w-full appearance-none bg-background pl-8 shadow-none md:w-2/3 lg:w-1/3"
-            />
+      <div className="flex items-center md:justify-between w-full gap-1 md:gap-2 py-2">
+        <div className="lg:flex-1 flex items-center justify-between">
+          <Link href={"/loggedin/projects"}>
+            <p className="text-sm font-semibold text-foreground/70 w-24">
+              / My Projects
+            </p>
+          </Link>
+          <div className="place-content-center w-full flex-1">
+            <SearchForm />
           </div>
-        </form>
+          <div className="place-content-center w-12 h-12 lg:w-16 lg:h-20 pl-4 ">
+            <Image src={TodostIcon} alt="todost-icon" className="rounded-lg" />
+          </div>
+        </div>
       </div>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="secondary" size="icon" className="rounded-full">
-            <CircleUser className="h-5 w-5" />
-            <span className="sr-only">Toggle user menu</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>Settings</DropdownMenuItem>
-          <DropdownMenuItem>Support</DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>Logout</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
     </header>
   );
 }

@@ -1,8 +1,17 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import Link from "next/link";
-import UserProfile from "./user-profile";
+import { useQuery } from "convex/react";
+import { useEffect, useState } from "react";
+
+import { api } from "@/convex/_generated/api";
+import { Doc } from "@/convex/_generated/dataModel";
+import { cn } from "@/lib/utils";
+
 import { primaryNavItems } from "@/utils";
+import UserProfile from "./user-profile";
+import AddProjectDialog from "../projects/add-project-dialog";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,14 +21,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { useEffect, useState } from "react";
-import { Doc } from "@/convex/_generated/dataModel";
-import { Hash, PlusIcon } from "lucide-react";
-import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
+
+import { Hash } from "lucide-react";
 
 type ListTitleType = {
   [key: string]: string;
@@ -72,15 +75,7 @@ export default function SideBar() {
                     {LIST_OF_TITLE_ID[id]}
                   </p>
                   {LIST_OF_TITLE_ID[id] === "My Projects" && (
-                    <Dialog>
-                      <DialogTrigger id="closeDialog">
-                        <PlusIcon
-                          className="h-5 w-5"
-                          aria-label={"Add a Project"}
-                        />
-                      </DialogTrigger>
-                      <DialogContent>Hello</DialogContent>
-                    </Dialog>
+                    <AddProjectDialog />
                   )}
                 </div>
               )}

@@ -16,8 +16,15 @@ import { Menu } from "lucide-react";
 import SearchForm from "./search-form";
 
 import TodostIcon from "@/public/Todost.png";
+import AddProjectDialog from "../projects/add-project-dialog";
 
-export default function MobileNav() {
+export default function MobileNav({
+  navTitle = "",
+  navLink = "",
+}: {
+  navTitle?: string;
+  navLink?: string;
+}) {
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
       <Sheet>
@@ -44,6 +51,7 @@ export default function MobileNav() {
 
             <div className="flex items-center mt-6 mb-2">
               <p className="flex flex-1 text-base">My Projects</p>
+              <AddProjectDialog />
             </div>
           </nav>
           <div className="mt-auto">
@@ -66,9 +74,9 @@ export default function MobileNav() {
       </Sheet>
       <div className="flex items-center md:justify-between w-full gap-1 md:gap-2 py-2">
         <div className="lg:flex-1 flex items-center justify-between">
-          <Link href={"/loggedin/projects"}>
+          <Link href={navLink}>
             <p className="text-sm font-semibold text-foreground/70 w-24">
-              / My Projects
+              {navTitle}
             </p>
           </Link>
           <div className="place-content-center w-full flex-1">

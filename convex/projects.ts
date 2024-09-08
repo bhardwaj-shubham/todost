@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { query } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 import { handleUserId } from "./auth";
 
 export const getProjects = query({
@@ -13,7 +13,10 @@ export const getProjects = query({
         .filter((q) => q.eq(q.field("userId"), userId))
         .collect();
 
-      const systemProjects = await ctx.db.query("projects").collect();
+      const systemProjects = await ctx.db
+        .query("projects")
+        .filter((q) => q.eq(q.field("type"), "system"))
+        .collect();
 
       return [...userProjects, ...systemProjects];
     }
@@ -39,5 +42,32 @@ export const getProjectById = query({
     }
 
     return null;
+  },
+});
+
+export const createAProject = mutation({
+  args: {
+    name: v.string(),
+  },
+  handler: async (ctx, { name }) => {
+    try {
+      const userId = await handleUserId(ctx);
+
+      if (userId) {
+        const newProjectId = await ctx.db.insert("projects", {
+          userId,
+          name,
+          type: "user",
+        });
+
+        return newProjectId;
+      }
+
+      return null;
+    } catch (error) {
+      console.log("Error occurred during createAProject mutation");
+
+      return null;
+    }
   },
 });

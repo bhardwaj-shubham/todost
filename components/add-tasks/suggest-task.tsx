@@ -47,12 +47,14 @@ export default function SuggestMissingTasks({
     setIsLoadingSuggestMissingTasks(true);
 
     try {
-      await suggestMissingSubTasks({
-        projectId,
-        taskName,
-        description,
-        parentId: parentId!,
-      });
+      if (parentId) {
+        await suggestMissingSubTasks({
+          projectId,
+          taskName,
+          description,
+          parentId,
+        });
+      }
     } catch (error) {
       console.log("Error in suggestingMissingTasks", error);
     } finally {

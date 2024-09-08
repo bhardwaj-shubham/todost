@@ -32,7 +32,13 @@ export const suggestMissingTask = action({
       projectId,
     });
 
-    const todosInStrings = JSON.stringify(todos);
+    const project = await ctx.runQuery(api.projects.getProjectById, {
+      projectId,
+    });
+
+    const projectName = project?.name || "";
+
+    const todosInStrings = JSON.stringify({ todos, projectName });
 
     const prompt = `I'm a project manager and I need help identifying missing todo items. I have a list of existing tasks in JSON format. Can you help me identify 1 additional todo items that are not yet included in this list? Please provide these missing items in a separate JSON array with key as 'todos' containing objects with with 'taskName' and 'description' properties. Ensure there are no duplicates between the existing list and the new suggestions. Todos: ${todosInStrings}`;
 

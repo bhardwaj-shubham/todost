@@ -45,10 +45,13 @@ export default function ProjectPage() {
       <SideBar />
 
       <div className="flex flex-col">
-        <MobileNav />
+        <MobileNav navTitle={"My Projects"} navLink={"/loggedin/projects"} />
+
         <main className="flex flex-1 flex-col gap-4 p-4 lg:px-8">
           <div className="flex items-center justify-between flex-wrap gap-2 lg:gap-0">
-            <h1 className="text-lg font-semibold md:text-2xl">{projectName}</h1>
+            <h1 className="text-lg font-semibold md:text-2xl">
+              {projectName || "Project"}
+            </h1>
             <div className="flex gap-6 lg:gap-12 items-center">
               <SuggestMissingTasks projectId={projectId} />
             </div>
@@ -57,7 +60,7 @@ export default function ProjectPage() {
           <Todos items={inCompletedTodosByProjectId} />
 
           <div className="pb-6">
-            <AddTaskWrapper />
+            <AddTaskWrapper projectId={parseProjectId} />
           </div>
 
           <Todos items={completedTodosByProjectId} />

@@ -41,7 +41,7 @@ const FormSchema = z.object({
   taskName: z.string().min(2, {
     message: "Task name must be at least 2 characters.",
   }),
-  description: z.string().optional(),
+  description: z.string().optional().default(""),
   priority: z.string().min(1, { message: "Please select a prority" }),
   dueDate: z.date({ required_error: "A due date is required" }),
   projectId: z.string().min(1, { message: "Please select a project" }),
@@ -51,16 +51,19 @@ const FormSchema = z.object({
 export default function AddTaskInline({
   setShowAddTask,
   parentTask,
+  projectId: userProjectId,
 }: {
   setShowAddTask: React.Dispatch<React.SetStateAction<boolean>>;
   parentTask: Doc<"todos">;
+  projectId?: Id<"projects">;
 }) {
   const projectId =
+    userProjectId ||
     parentTask?.projectId ||
-    ("k97ehx0j897sskm7y684f5zakd6z4yvh" as Id<"projects">);
+    (process.env.Default_ProjectID as Id<"projects">);
 
   const labelId =
-    parentTask?.labelId || ("k57fqf7wh29xrn2dnqrvh1h70s6z4ypg" as Id<"labels">);
+    parentTask?.labelId || (process.env.Default_LabelID as Id<"labels">);
 
   const priority = parentTask?.priority?.toString() || "1";
   const parentId = parentTask?._id;
@@ -168,7 +171,6 @@ export default function AddTaskInline({
                     <Textarea
                       id="description"
                       placeholder="Description"
-                      required
                       className="resize-none"
                       {...field}
                     />

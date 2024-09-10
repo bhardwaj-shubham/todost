@@ -1,10 +1,9 @@
 import { action, mutation, query } from "@/convex/_generated/server";
 import { v } from "convex/values";
-import { handleUserId } from "./auth";
 import moment from "moment";
-import { createEmbeddingWithAI } from "./taskSuggestionService";
-import { useAction } from "convex/react";
 import { api } from "./_generated/api";
+import { handleUserId } from "./auth";
+import { createEmbeddingWithAI } from "./taskSuggestionService";
 
 export const get = query({
   args: {},
@@ -311,5 +310,26 @@ export const groupTodosByDate = query({
     }
 
     return [];
+  },
+});
+
+export const deleteTodo = mutation({
+  args: {
+    todoId: v.id("todos"),
+  },
+  handler: async (ctx, { todoId }) => {
+    try {
+      const userId = await handleUserId(ctx);
+
+      if (userId) {
+        const deletedTodoId = await ctx.db.delete(todoId);
+
+        console.log("Todo deleted with id:", deletedTodoId);
+      }
+    } catch (error) {
+      console.log("Error occurred during deleteTodo mutation");
+
+      return null;
+    }
   },
 });

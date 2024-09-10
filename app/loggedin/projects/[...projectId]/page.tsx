@@ -13,6 +13,7 @@ import SideBar from "@/components/nav-bar/side-bar";
 import { AddTaskWrapper } from "@/components/add-tasks/add-task-button";
 import CompletedTodos from "@/components/todos/completed-todos";
 import SuggestMissingTasks from "@/components/add-tasks/suggest-task";
+import DeleteProject from "@/components/projects/delete-project";
 
 export default function ProjectPage() {
   const { projectId } = useParams<{ projectId: Id<"projects"> }>();
@@ -52,8 +53,9 @@ export default function ProjectPage() {
             <h1 className="text-lg font-semibold md:text-2xl">
               {projectName || "Project"}
             </h1>
-            <div className="flex gap-6 lg:gap-12 items-center">
+            <div className="flex gap-2 lg:gap-12 mx-2 items-center">
               <SuggestMissingTasks projectId={projectId} />
+              <DeleteProject projectId={parseProjectId} />
             </div>
           </div>
 

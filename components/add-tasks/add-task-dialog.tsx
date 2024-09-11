@@ -1,14 +1,14 @@
-import { useEffect, useState } from "react";
 import { format } from "date-fns";
+import { useEffect, useState } from "react";
 
-import { useMutation, useQuery } from "convex/react";
-import { Doc, Id } from "@/convex/_generated/dataModel";
 import { api } from "@/convex/_generated/api";
+import { Doc } from "@/convex/_generated/dataModel";
+import { useMutation, useQuery } from "convex/react";
 
 import Task from "../todos/task";
 import { AddTaskWrapper } from "./add-task-button";
+import SuggestMissingTasks from "./suggest-task";
 
-import { Calendar, ChevronDown, Flag, Hash, Tag } from "lucide-react";
 import {
   DialogContent,
   DialogDescription,
@@ -16,7 +16,15 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import SuggestMissingTasks from "./suggest-task";
+import { useToast } from "@/components/ui/use-toast";
+import {
+  Calendar,
+  ChevronDown,
+  Flag,
+  Hash,
+  Tag,
+  Trash2Icon,
+} from "lucide-react";
 
 export default function AddTaskDialog({ data }: { data: Doc<"todos"> }) {
   const { taskName, description, projectId, labelId, priority, dueDate, _id } =
@@ -30,6 +38,8 @@ export default function AddTaskDialog({ data }: { data: Doc<"todos"> }) {
     labelId,
   });
 
+  const { toast } = useToast();
+
   const inCompleteSubTodosByProject =
     useQuery(api.subTodos.inCompleteSubTodos, {
       parentId: _id,
@@ -42,6 +52,7 @@ export default function AddTaskDialog({ data }: { data: Doc<"todos"> }) {
 
   const checkASubTodoMutation = useMutation(api.subTodos.checkASubTodo);
   const unCheckASubTodoMutation = useMutation(api.subTodos.unCheckASubTodo);
+  const deleteATodoMutation = useMutation(api.todos.deleteTodo);
 
   const [todoDetails, setTodoDetails] = useState<
     { labelName: string; value: string | undefined; icon: JSX.Element }[]
@@ -75,6 +86,21 @@ export default function AddTaskDialog({ data }: { data: Doc<"todos"> }) {
       setTodoDetails(todoData);
     }
   }, [dueDate, label?.name, priority, project?.name]);
+
+  const handleDeleteTodo = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const deletedTodoId = deleteATodoMutation({
+      todoId: _id,
+    });
+
+    if (deletedTodoId !== undefined) {
+      toast({
+        title: "🗑️ Successfully deleted",
+        duration: 3000,
+      });
+    }
+  };
 
   return (
     <DialogContent className="max-w-4xl lg:h-4/6 flex flex-col md:flex-row lg:justify-between text-right">
@@ -136,6 +162,14 @@ export default function AddTaskDialog({ data }: { data: Doc<"todos"> }) {
             </div>
           </div>
         ))}
+
+        <div className="flex gap-2 px-4 w-full justify-end">
+          <form onSubmit={(e) => handleDeleteTodo(e)}>
+            <button type="submit">
+              <Trash2Icon className="w-5 h-5" />
+            </button>
+          </form>
+        </div>
       </div>
     </DialogContent>
   );

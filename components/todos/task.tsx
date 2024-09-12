@@ -71,7 +71,7 @@ export default function Task({
               </div>
             </DialogTrigger>
           </div>
-          {!data?.parentId && <AddTaskDialog data={data} />}
+          {!isSubTodo(data) && <AddTaskDialog data={data} />}
         </div>
       </Dialog>
     </div>

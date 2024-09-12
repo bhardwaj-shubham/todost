@@ -18,25 +18,22 @@ import DeleteProject from "@/components/projects/delete-project";
 export default function ProjectPage() {
   const { projectId } = useParams<{ projectId: Id<"projects"> }>();
 
-  const parseProjectId = projectId[0] as Id<"projects">;
-
   const inCompletedTodosByProjectId =
     useQuery(api.todos.getInCompletedTodosByProjectId, {
-      projectId: parseProjectId,
+      projectId,
     }) ?? [];
 
   const completedTodosByProjectId =
     useQuery(api.todos.getCompletedTodosByProjectId, {
-      projectId: parseProjectId,
+      projectId,
     }) ?? [];
 
-  const totalTodosByProjectId =
-    useQuery(api.todos.getTodosTotalByProjectId, {
-      projectId: parseProjectId,
-    }) ?? 0;
+  const totalTodosByProjectId = useQuery(api.todos.getTodosTotalByProjectId, {
+    projectId,
+  });
 
   const project = useQuery(api.projects.getProjectById, {
-    projectId: parseProjectId,
+    projectId,
   });
 
   const projectName = project?.name ?? "Get Started";
@@ -55,14 +52,14 @@ export default function ProjectPage() {
             </h1>
             <div className="flex gap-2 lg:gap-12 mx-2 items-center">
               <SuggestMissingTasks projectId={projectId} />
-              <DeleteProject projectId={parseProjectId} />
+              <DeleteProject projectId={projectId} />
             </div>
           </div>
 
           <Todos items={inCompletedTodosByProjectId} />
 
           <div className="pb-6">
-            <AddTaskWrapper projectId={parseProjectId} />
+            <AddTaskWrapper projectId={projectId} />
           </div>
 
           <Todos items={completedTodosByProjectId} />

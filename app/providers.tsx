@@ -8,8 +8,14 @@ import { SessionProvider, useSession } from "next-auth/react";
 
 const convexClient = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
+function convexTokenFromSession(session: Session | null): string | null {
+  return session?.convexToken ?? null;
+}
+
 function useAuth() {
   const { data: session, update } = useSession();
+
+  const convexToken = convexTokenFromSession(session);
 
   return useMemo(
     () => ({
@@ -23,8 +29,9 @@ function useAuth() {
         if (forceRefreshToken) {
           const session = await update();
 
-          return session?.convexToken ?? null;
+          return convexTokenFromSession(session);
         }
+        return convexToken;
       },
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps

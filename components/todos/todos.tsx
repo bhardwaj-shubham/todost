@@ -5,7 +5,13 @@ import { api } from "@/convex/_generated/api";
 import Task from "./task";
 import { useToast } from "@/components/ui/use-toast";
 
-export default function Todos({ items }: { items: Array<Doc<"todos">> }) {
+export default function Todos({
+  items,
+  showDetails = false,
+}: {
+  items: Array<Doc<"todos">>;
+  showDetails?: boolean;
+}) {
   const { toast } = useToast();
 
   const checkATodo = useMutation(api.todos.checkATodo);
@@ -31,6 +37,7 @@ export default function Todos({ items }: { items: Array<Doc<"todos">> }) {
       data={task}
       isCompleted={task.isCompleted}
       handleOnChange={() => handleOnChange(task)}
+      showDetails={showDetails}
     />
   ));
 }

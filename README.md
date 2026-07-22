@@ -1,36 +1,89 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Todost
+
+A todo app built with Next.js that goes a step beyond basic task lists — it uses the Google Gemini API to suggest tasks you might have forgotten, and syncs instantly across devices via Convex.
+
+## Features
+
+- **AI-powered suggestions** — Gemini API suggests new tasks based on your current todo list
+- **Real-time sync** — changes reflect instantly across devices via Convex, with automatic conflict resolution
+- **Authentication** — NextAuth v5, supporting GitHub/Google OAuth and email login
+- **Task management** — create, update, complete, and filter tasks by status and date
+- **Responsive UI** — Tailwind CSS + Radix UI, dark mode supported
+
+## Tech Stack
+
+- **Framework:** Next.js 14 (App Router), React 18, TypeScript
+- **Backend/Database:** Convex (real-time backend)
+- **Auth:** NextAuth v5
+- **AI:** Google Generative AI (Gemini API)
+- **UI:** Tailwind CSS, Radix UI
+- **Forms/Validation:** React Hook Form, Zod
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+
+- A Convex account
+- A Google Gemini API key
+- (Optional) GitHub/Google OAuth app credentials
+
+### Setup
+
+```bash
+git clone https://github.com/bhardwaj-shubham/todost.git
+cd todost
+npm install
+```
+
+Create `.env.local`:
+
+```
+NEXT_PUBLIC_CONVEX_URL=your_convex_deployment_url
+GOOGLE_API_KEY=your_google_api_key
+NEXTAUTH_SECRET=your_secret_key
+NEXTAUTH_URL=http://localhost:3000
+
+# Optional OAuth
+GITHUB_ID=your_github_oauth_id
+GITHUB_SECRET=your_github_oauth_secret
+GOOGLE_OAUTH_ID=your_google_oauth_id
+GOOGLE_OAUTH_SECRET=your_google_oauth_secret
+```
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Runs on `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+```
+todost/
+├── app/
+│   ├── api/auth/         # NextAuth routes
+│   └── components/       # TodoForm, TodoList, TodoItem, etc.
+├── lib/
+│   ├── auth.ts           # NextAuth config
+│   ├── db.ts             # Convex client
+│   └── ai.ts             # Gemini API integration
+├── convex/
+│   ├── schema.ts         # Database schema
+│   └── todos.ts          # Mutations and queries
+└── public/
+```
 
-## Learn More
+## How the AI suggestions work
 
-To learn more about Next.js, take a look at the following resources:
+The app sends your current list of todos to Gemini with a prompt asking for related tasks you might be missing — not random suggestions, but ones grounded in what's already on your list. This keeps the feature from feeling like a novelty bolt-on.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## What I'd improve next
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+- Cache/rate-limit Gemini calls so suggestions aren't re-fetched unnecessarily
+- Add recurring tasks and calendar integration (currently on the roadmap, not built)
+- Add tests around the Convex mutations
 
-## Deploy on Vercel
+## License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+MIT
